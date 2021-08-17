@@ -130,3 +130,6 @@ dmypy.json
 
 # Visual Studio Code folder
 .vscode/
+
+# TensorRT runtime cache files
+*.engine
