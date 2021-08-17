@@ -7,6 +7,27 @@ from jetson.utils import videoSource
 from typing import Tuple, Dict
 
 
+class ObjectType:
+    """
+    """
+    def __init__(self,
+                 name: str,
+                 amount: int = 0,
+                 demand: int = 0,
+                 price: float = 0.0) -> None:
+        self.name = name
+        self.amount = amount
+        self.demand = demand
+        self.price = price
+
+    def __str__(self) -> str:
+        return f"""\t{self.name.title()}
+        Units: {self.amount}
+        Needed: {self.demand}
+        Total cost: {self.amount * self.price}
+        """
+
+
 class InventoryManager:
     """
     """
@@ -40,3 +61,14 @@ class InventoryManager:
         for class_index in self._network.Detect(self._camera.Capture()):
             result[self._network.GetClassDesc(class_index)] += 1
         return result
+
+    def _check_contraints(self, inventory_data: Dict[str, int]) -> None:
+        """
+        """
+        pass
+
+    @staticmethod
+    def _update_prices(inventory_data: Dict[str, int]) -> None:
+        """
+        """
+        pass
