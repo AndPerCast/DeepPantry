@@ -1,4 +1,4 @@
-#
+# Build project's Docker image.
 
 FROM dustynv/jetson-inference:r32.6.1
 

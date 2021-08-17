@@ -1,0 +1,16 @@
+# Cache and git folders
+__pycache__/
+.cache/
+.git/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Visual Studio Code folder
+.vscode/
