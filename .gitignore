@@ -133,3 +133,6 @@ dmypy.json
 
 # TensorRT runtime cache files
 *.engine
+
+# Auxiliary file for inventory manager.
+.constraints.csv
