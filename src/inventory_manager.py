@@ -6,6 +6,7 @@ from jetson.inference import detectNet
 from jetson.utils import videoSource
 from os.path import join, dirname, isfile
 import csv
+from price_scraper import scrape_price
 from typing import Tuple, Dict
 
 
@@ -17,6 +18,7 @@ class ObjectType:
                  amount: int = 0,
                  constraint: int = 0,
                  price: float = 0.0) -> None:
+        # TODO additional fields, class name refactoring
         self.class_name = class_name
         self.constraint = constraint
         self.amount = amount
@@ -93,4 +95,10 @@ class InventoryManager:
     def _update_prices(self, inventory_data: Dict[str, ObjectType]) -> None:
         """
         """
-        pass
+        for class_name, obj in inventory_data.items():
+            try:
+                # TODO check empty tuple
+                _, obj.price, _ = scrape_price(class_name)
+            except:
+                # TODO handle requests connection error
+                pass

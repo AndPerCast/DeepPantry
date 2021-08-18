@@ -20,6 +20,4 @@ def scrape_price(product_name: str,
         price = float(price_str[1:])
         currency = price_str[0]
         product_data.append((link, price, currency))
-    return min(product_data, key=lambda element: element[1], default=tuple())
-
-print(scrape_price("pineapple"))
+    return min(product_data, key=lambda data: data[1], default=tuple())
