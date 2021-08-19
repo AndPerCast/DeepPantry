@@ -15,12 +15,13 @@ from typing import Tuple, Dict
 class ProductType:
     """
     """
+
     name: str
     amount: int = 0
     constraint: int = 0
     link: str = ""
     price: float = 0.0
-    currency: str = "$"
+    currency: str = ""
 
     @property
     def demand(self) -> int:
@@ -63,7 +64,8 @@ class InventoryManager:
         self._camera = videoSource(input_uri)
 
         with open(path2labels, "r", newline="") as labels_file:
-            self.classes: Tuple[str, ...] = tuple(label for label in labels_file if label != "BACKGROUND")
+            self.classes: Tuple[str, ...] = tuple(label for label in labels_file
+                                                  if label != "BACKGROUND")
 
         self._path2constraints: str = join(dirname(dirname(__file__)),
                                            "config", ".constraints.csv")
@@ -71,7 +73,8 @@ class InventoryManager:
             with open(self._path2constraints, "w", newline="") as csv_file:
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerow(["Class", "Constraint"])
-                csv_writer.writerows([[class_name, 0] for class_name in self.classes])
+                csv_writer.writerows([[class_name, 0]
+                                      for class_name in self.classes])
 
     @property
     def inventory(self) -> Dict[str, ProductType]:
@@ -86,14 +89,15 @@ class InventoryManager:
             result[self._network.GetClassDesc(class_index)].amount += 1
         return result
 
-    def _update_constraints(self, inventory_data: Dict[str, ProductType]) -> None:
+    def _update_constraints(self,
+                            inventory_data: Dict[str, ProductType]) -> None:
         """
         """
         with open(self._path2constraints, "r", newline="") as csv_file:
             csv_reader = csv.DictReader(csv_file)
-            class_header, constraint_header = next(csv_reader)
+            class_h, constraint_h = next(csv_reader)
             for row in csv_reader:
-                inventory_data[row[class_header]].constraint = int(row[constraint_header])
+                inventory_data[row[class_h]].constraint = int(row[constraint_h])
 
     def _update_prices(self, inventory_data: Dict[str, ProductType]) -> None:
         """
