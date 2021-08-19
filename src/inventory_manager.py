@@ -7,35 +7,38 @@ from jetson.utils import videoSource
 from os.path import join, dirname, isfile
 import csv
 from price_scraper import scrape_price
+from dataclasses import dataclass
 from typing import Tuple, Dict
 
 
-class ObjectType:
+@dataclass
+class ProductType:
     """
     """
-    def __init__(self,
-                 class_name: str,
-                 amount: int = 0,
-                 constraint: int = 0,
-                 price: float = 0.0) -> None:
-        # TODO additional fields, class name refactoring
-        self.class_name = class_name
-        self.constraint = constraint
-        self.amount = amount
-        self.price = price
+    name: str
+    amount: int = 0
+    constraint: int = 0
+    link: str = ""
+    price: float = 0.0
+    currency: str = "$"
 
     @property
     def demand(self) -> int:
         dif = self.amount - self.constraint
         return abs(dif) if dif < 0 else 0
 
+    @property
+    def total_cost(self) -> float:
+        return round(self.demand * self.price, 2)
+
     def __str__(self) -> str:
-        return f"""\t{self.class_name.title()}
-        Stored: {self.amount}
-        Minimum units: {self.constraint}
-        Needed: {self.demand}
-        Total cost: {round(self.demand * self.price, 2) if self.price else ""}$
-        """
+        return (f"\t{self.name.title()}\n"
+                f"Stored: {self.amount}\n"
+                f"Minimum units: {self.constraint}\n"
+                f"Needed: {self.demand}\n"
+                f"Current price: {self.price}{self.currency}\n"
+                f"Total cost: {self.total_cost}{self.currency}\n"
+                f"Purchase link: {self.link}\n")
 
 
 class InventoryManager:
@@ -71,11 +74,11 @@ class InventoryManager:
                 csv_writer.writerows([[class_name, 0] for class_name in self.classes])
 
     @property
-    def inventory(self) -> Dict[str, ObjectType]:
+    def inventory(self) -> Dict[str, ProductType]:
         """
         """
-        result: Dict[str, ObjectType] = {class_name:ObjectType(class_name)
-                                         for class_name in self.classes}
+        result: Dict[str, ProductType] = {class_name:ProductType(class_name)
+                                          for class_name in self.classes}
         self._update_constraints(result)
         self._update_prices(result)
         # Count occurrences of each type within list of detected objects.
@@ -83,7 +86,7 @@ class InventoryManager:
             result[self._network.GetClassDesc(class_index)].amount += 1
         return result
 
-    def _update_constraints(self, inventory_data: Dict[str, ObjectType]) -> None:
+    def _update_constraints(self, inventory_data: Dict[str, ProductType]) -> None:
         """
         """
         with open(self._path2constraints, "r", newline="") as csv_file:
@@ -92,13 +95,8 @@ class InventoryManager:
             for row in csv_reader:
                 inventory_data[row[class_header]].constraint = int(row[constraint_header])
 
-    def _update_prices(self, inventory_data: Dict[str, ObjectType]) -> None:
+    def _update_prices(self, inventory_data: Dict[str, ProductType]) -> None:
         """
         """
-        for class_name, obj in inventory_data.items():
-            try:
-                # TODO check empty tuple
-                _, obj.price, _ = scrape_price(class_name)
-            except:
-                # TODO handle requests connection error
-                pass
+        for name, product in inventory_data.items():
+            product.link, product.price, product.currency = scrape_price(name)
