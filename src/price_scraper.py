@@ -5,12 +5,6 @@ information gathering from a certain website.
 
 Author:
     Andrés Pérez
-
-Example::
-
-    link, price, currency = scrape_price("soda")
-    print(f"Soda costs {price}{currency}")
-    print(f"Here is a purchase link: {link}")
 """
 
 from bs4 import BeautifulSoup
@@ -31,12 +25,17 @@ def scrape_price(product_name: str,
         parser: HTML parser used by the scraper.
 
     Returns:
-        Purchase link, price and currency. For example:
+        Purchase link, price and currency.
 
+        Default values will be returned if such gathering
+        process fails, as shown in the example.
+
+    Example::
+
+        >>> scrape_price("soda")
         ('https://www.trolley.co.uk/product/vive-soda-water/FTB465', 0.25, '£')
-
-        On the other hand, if such gathering process fails:
-
+        
+        >>> scrape_price("?")
         ("", 0.0, "")
     """
     # Make a complete url to fetch data for given product.
