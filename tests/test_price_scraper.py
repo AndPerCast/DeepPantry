@@ -46,6 +46,24 @@ class TestPriceScraper(unittest.TestCase):
             self.assertTupleEqual(self.default_price_info,
                                   scrape_price(self.product_name))
 
+            mocked_get.side_effect = requests.ConnectionError
+            self.assertTupleEqual(self.default_price_info,
+                                  scrape_price(self.product_name))
+
+            mocked_get.side_effect = requests.Timeout
+            self.assertTupleEqual(self.default_price_info,
+                                  scrape_price(self.product_name))
+            
+            with patch("price_scraper.min") as mocked_min:
+                mocked_get.reset_mock(side_effect=True)
+                requests.Response.text = "<html></html>"
+                r = requests.Response()
+                r.status_code = 200
+                mocked_get.return_value = r
+                self.assertTupleEqual(self.default_price_info,
+                                      scrape_price(self.product_name))
+                mocked_min.assert_called_once_with([])
+            
 
 if __name__ == "__main__":
     unittest.main()
