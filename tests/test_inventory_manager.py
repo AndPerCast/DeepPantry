@@ -6,8 +6,10 @@ Author:
 
 import unittest
 from unittest.mock import patch
+from random import randint
+import csv
 import sys
-from os.path import join, dirname
+from os.path import join, dirname, isfile
 from os import remove
 
 # Add tested modules to Python path.
@@ -21,17 +23,17 @@ class TestInventoryManager(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.classes = ("honey", "water")
+        cls.inventory_data = {
+            "honey": ProductType("honey"),
+            "water": ProductType("water"),
+        }
+        cls.classes = tuple(cls.inventory_data.keys()) 
         cls.path2labels: str = join(dirname(__file__), "labels.txt")
         with open(cls.path2labels, "w", newline="") as labels_file:
             labels_file.write("BACKGROUND\n")
             labels_file.writelines(cls.classes)
         InventoryManager._PATH2CONSTRAINTS = join(dirname(__file__),
                                                   ".constraints.csv")
-        cls.inventory_data = {
-            "honey": ProductType("honey"),
-            "water": ProductType("water")
-        }
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -50,10 +52,23 @@ class TestInventoryManager(unittest.TestCase):
         self.manager = InventoryManager("", self.path2labels, "")
 
     def test_inventory(self) -> None:
-
         pass
 
+    def test_update_constraints(self) -> None:
+        sample_data1 = self.inventory_data.copy()
+        for product in sample_data1.values():
+            product.constraint = randint(1, 5)
+        
+        self.assertTrue(isfile(InventoryManager._PATH2CONSTRAINTS))
+        with open(InventoryManager._PATH2CONSTRAINTS, "w", newline="") as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerow(["Class", "Constraint"])
+            csv_writer.writerows([[key, value.constraint]
+                                  for key, value in sample_data1.items()])
 
+        sample_data2 = self.inventory_data.copy()
+        self.manager._update_constraints(sample_data2)
+        self.assertDictEqual(sample_data1, sample_data2)
 
 
 if __name__ == "__main__":
