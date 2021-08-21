@@ -1,5 +1,10 @@
-"""
+"""AI-powered food inventory tracker.
 
+This module is designed to analyze a food inventory via object recognition
+techniques. Resulting data can be easily used by other applications.
+
+Author:
+    Andrés Pérez
 """
 
 from jetson.inference import detectNet
@@ -13,7 +18,15 @@ from typing import Tuple, Dict
 
 @dataclass
 class ProductType:
-    """
+    """Stores information about a certain type of product.
+
+    Attributes:
+        name: Common name for a type product.
+        amount: Number of available product units.
+        constraint: Minimum units that should be available constantly.
+        link: Purchase url.
+        price: Price value.
+        currency: Currency symbol.
     """
 
     name: str
@@ -25,11 +38,13 @@ class ProductType:
 
     @property
     def demand(self) -> int:
+        """Number of units needed to fulfill established contraint."""
         dif = self.amount - self.constraint
         return abs(dif) if dif < 0 else 0
 
     @property
     def total_cost(self) -> float:
+        """Total cost of demanded product units."""
         return round(self.demand * self.price, 2)
 
     def __str__(self) -> str:
@@ -43,15 +58,36 @@ class ProductType:
 
 
 class InventoryManager:
-    """
+    """Analyzes a food inventory with the help of object recognition.
+    
+    Product data is collected from a real-time image.
+
+    Note:
+        You can get a deeper understsanding about
+        class settings format under `CONFIG.md`.
+
+    Args:
+        path2model:
+
+    Attributes:
+        classes: Names of all kinds of products that might be detected.
+
+    Example::
+
+        >>> man = InventoryManager("../models/model.onnx", "../models/labels.txt", "/dev/video0")
+        >>> print(man.inventory)
+        {'honey': ProductType(name='honey', amount=3, constraint=1, link='https://shop.com/honey', price=0.73, currency='$')}
     """
 
     def __init__(self,
                  path2model: str,
                  path2labels: str,
-                 sensitivity: float,
-                 input_uri: str) -> None:
+                 input_uri: str,
+                 sensitivity: float = 0.5) -> None:
         """
+
+        Args:
+
         """
         self._network = detectNet(threshold=sensitivity, argv=[
             "--model=" + path2model,
@@ -78,8 +114,7 @@ class InventoryManager:
 
     @property
     def inventory(self) -> Dict[str, ProductType]:
-        """
-        """
+        """Information about products which can be accessed by their name."""
         result: Dict[str, ProductType] = {class_name:ProductType(class_name)
                                           for class_name in self.classes}
         self._update_constraints(result)
@@ -91,8 +126,6 @@ class InventoryManager:
 
     def _update_constraints(self,
                             inventory_data: Dict[str, ProductType]) -> None:
-        """
-        """
         with open(self._path2constraints, "r", newline="") as csv_file:
             csv_reader = csv.DictReader(csv_file)
             class_h, constraint_h = next(csv_reader)
@@ -100,7 +133,5 @@ class InventoryManager:
                 inventory_data[row[class_h]].constraint = int(row[constraint_h])
 
     def _update_prices(self, inventory_data: Dict[str, ProductType]) -> None:
-        """
-        """
         for name, product in inventory_data.items():
             product.link, product.price, product.currency = scrape_price(name)
