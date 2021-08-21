@@ -66,17 +66,25 @@ class InventoryManager:
         You can get a deeper understsanding about
         class settings format under `CONFIG.md`.
 
+        Internet connection is required to obtain real-time product prices.
+
     Args:
-        path2model:
+        path2model: Path to a file that contains a machine learning model.
+        path2labels: Path to a file that contains class labels to be recognized.
+        input_uri: Resource id for an image/camera input.
+        sensitivity: Minimum confidence for an object to be detected.
 
     Attributes:
-        classes: Names of all kinds of products that might be detected.
+        classes: Names of each kind of product that might be detected.
 
     Example::
 
         >>> man = InventoryManager("../models/model.onnx", "../models/labels.txt", "/dev/video0")
         >>> print(man.inventory)
         {'honey': ProductType(name='honey', amount=3, constraint=1, link='https://shop.com/honey', price=0.73, currency='$')}
+
+    See Also:
+        https://github.com/dusty-nv/jetson-inference/blob/master/docs/aux-streaming.md#input-streams
     """
 
     def __init__(self,
@@ -84,11 +92,6 @@ class InventoryManager:
                  path2labels: str,
                  input_uri: str,
                  sensitivity: float = 0.5) -> None:
-        """
-
-        Args:
-
-        """
         self._network = detectNet(threshold=sensitivity, argv=[
             "--model=" + path2model,
             "--labels=" + path2labels,
@@ -99,6 +102,7 @@ class InventoryManager:
 
         self._camera = videoSource(input_uri)
 
+        # Get available objects from labels file, skip BACKGROUND class.
         with open(path2labels, "r", newline="") as labels_file:
             self.classes: Tuple[str, ...] = tuple(label for label in labels_file
                                                   if label != "BACKGROUND")
@@ -106,6 +110,7 @@ class InventoryManager:
         self._path2constraints: str = join(dirname(dirname(__file__)),
                                            "config", ".constraints.csv")
         if not isfile(self._path2constraints):
+            # Create default constraints for each object class.
             with open(self._path2constraints, "w", newline="") as csv_file:
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerow(["Class", "Constraint"])
@@ -120,18 +125,20 @@ class InventoryManager:
         self._update_constraints(result)
         self._update_prices(result)
         # Count occurrences of each type within list of detected objects.
-        for class_index in self._network.Detect(self._camera.Capture()):
-            result[self._network.GetClassDesc(class_index)].amount += 1
+        for obj in self._network.Detect(self._camera.Capture()):
+            result[self._network.GetClassDesc(obj.ClassID)].amount += 1
         return result
 
     def _update_constraints(self,
                             inventory_data: Dict[str, ProductType]) -> None:
         with open(self._path2constraints, "r", newline="") as csv_file:
             csv_reader = csv.DictReader(csv_file)
+            # Get column headers and update constraint field for each product.
             class_h, constraint_h = next(csv_reader)
             for row in csv_reader:
                 inventory_data[row[class_h]].constraint = int(row[constraint_h])
 
     def _update_prices(self, inventory_data: Dict[str, ProductType]) -> None:
+        # Get real-time prices and purchase links for each product.
         for name, product in inventory_data.items():
             product.link, product.price, product.currency = scrape_price(name)
