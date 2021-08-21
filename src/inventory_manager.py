@@ -13,7 +13,7 @@ from os.path import join, dirname, isfile
 import csv
 from price_scraper import scrape_price
 from dataclasses import dataclass
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
 
 
 @dataclass
@@ -107,9 +107,14 @@ class InventoryManager:
         self._camera = videoSource(input_uri)
 
         # Get available objects from labels file, skip BACKGROUND class.
-        with open(path2labels, "r", newline="") as labels_file:
-            self.classes: Tuple[str, ...] = tuple(label for label in labels_file
-                                                  if label != "BACKGROUND")
+        with open(path2labels, "r") as labels_file:
+            classes: List[str] = []
+            for line in labels_file:
+                label: str = line.rstrip("\n")
+                if label != "BACKGROUND":
+                    classes.append(label)
+
+        self.classes: Tuple[str, ...] = tuple(classes)
 
         if not isfile(self._PATH2CONSTRAINTS):
             # Create default constraints for each object class.
@@ -140,7 +145,8 @@ class InventoryManager:
             for row in csv_reader:
                 inventory_data[row[class_h]].constraint = int(row[constraint_h])
 
-    def _update_prices(self, inventory_data: Dict[str, ProductType]) -> None:
+    @staticmethod
+    def _update_prices(inventory_data: Dict[str, ProductType]) -> None:
         # Get real-time prices and purchase links for each product.
         for name, product in inventory_data.items():
             product.link, product.price, product.currency = scrape_price(name)
