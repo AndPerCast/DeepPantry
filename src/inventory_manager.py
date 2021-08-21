@@ -87,6 +87,10 @@ class InventoryManager:
         https://github.com/dusty-nv/jetson-inference/blob/master/docs/aux-streaming.md#input-streams
     """
 
+    # A csv file that stores minimum number of units per product.
+    _PATH2CONSTRAINTS: str = join(dirname(dirname(__file__)),
+                                  "config", ".constraints.csv")
+
     def __init__(self,
                  path2model: str,
                  path2labels: str,
@@ -107,11 +111,9 @@ class InventoryManager:
             self.classes: Tuple[str, ...] = tuple(label for label in labels_file
                                                   if label != "BACKGROUND")
 
-        self._path2constraints: str = join(dirname(dirname(__file__)),
-                                           "config", ".constraints.csv")
-        if not isfile(self._path2constraints):
+        if not isfile(self._PATH2CONSTRAINTS):
             # Create default constraints for each object class.
-            with open(self._path2constraints, "w", newline="") as csv_file:
+            with open(self._PATH2CONSTRAINTS, "w", newline="") as csv_file:
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerow(["Class", "Constraint"])
                 csv_writer.writerows([[class_name, 0]
@@ -131,7 +133,7 @@ class InventoryManager:
 
     def _update_constraints(self,
                             inventory_data: Dict[str, ProductType]) -> None:
-        with open(self._path2constraints, "r", newline="") as csv_file:
+        with open(self._PATH2CONSTRAINTS, "r", newline="") as csv_file:
             csv_reader = csv.DictReader(csv_file)
             # Get column headers and update constraint field for each product.
             class_h, constraint_h = next(csv_reader)
