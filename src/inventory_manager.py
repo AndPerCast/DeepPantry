@@ -80,7 +80,7 @@ class InventoryManager:
     Example::
 
         >>> man = InventoryManager("../models/model.onnx", "../models/labels.txt", "/dev/video0")
-        >>> print(man.inventory)
+        >>> print(man.inventory())
         {'honey': ProductType(name='honey', amount=3, constraint=1, link='https://shop.com/honey', price=0.73, currency='$')}
 
     See Also:
@@ -124,9 +124,12 @@ class InventoryManager:
                 csv_writer.writerows([[class_name, 0]
                                       for class_name in self.classes])
 
-    @property
     def inventory(self) -> Dict[str, ProductType]:
-        """Information about products which can be accessed by their name."""
+        """Extracts inventory information from a real-time image.
+
+        Returns:
+            Information about products which can be accessed by their name.
+        """
         result: Dict[str, ProductType] = {class_name:ProductType(class_name)
                                           for class_name in self.classes}
         self._update_constraints(result)

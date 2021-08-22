@@ -74,7 +74,7 @@ class TestInventoryManager(unittest.TestCase):
             # Set up mocks' behaviour, note "()" to use upper level mocks.
             self.mocket_detectnet().Detect.return_value = detections
             self.mocket_detectnet().GetClassDesc.side_effect = lambda id: self.classes[id]
-            self.assertDictEqual(sample_data, self.manager.inventory)
+            self.assertDictEqual(sample_data, self.manager.inventory())
 
     def test_update_constraints(self) -> None:
         # Check if a default constraints file was created.

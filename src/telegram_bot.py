@@ -53,12 +53,23 @@ class TelegramBot:
         """
         disp: Dispatcher = self._updater.dispatcher
         disp.add_handler(CommandHandler("start", self._start))
+        disp.add_handler(CommandHandler("help", self._help))
         self._updater.start_polling()
         self._updater.idle()
 
     def _start(self, update: Update, _: CallbackContext) -> None:
-        update.message.reply_text("Welcome to DeepPantryBot!\n"
-                                  "Type /help to get more information")
+        # Ignore incoming messages from other chats.
+        if update.effective_chat.id != self._chat_id:
+            return
+
+        update.message.reply_text("Welcome to DeepPantryBot!")
+        update.message.reply_text("Type /help to get more information.")
 
     def _help(self, update: Update, _: CallbackContext) -> None:
-        pass
+        # Ignore incoming messages from other chats.
+        if update.effective_chat.id != self._chat_id:
+            return
+
+        update.message.reply_text("Avaliable commands:\n\n"
+                                  "/start -> Welcome message\n"
+                                  "/help  -> Help message\n")
