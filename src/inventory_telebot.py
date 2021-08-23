@@ -12,8 +12,9 @@ from telegram.ext import (Updater,
                           MessageHandler,
                           Dispatcher,
                           CallbackContext)
-from telegram import Update
-from inventory_manager import InventoryManager
+from telegram import Update, ParseMode
+from inventory_manager import InventoryManager, ProductType
+from typing import List
 
 
 class InventoryTelebot:
@@ -57,6 +58,8 @@ class InventoryTelebot:
         disp: Dispatcher = self._updater.dispatcher
         disp.add_handler(CommandHandler("start", self._start))
         disp.add_handler(CommandHandler("help", self._help))
+        disp.add_handler(CommandHandler("inventory", self._inventory))
+        disp.add_handler(CommandHandler("list", self._list))
         self._updater.start_polling()
         self._updater.idle()
 
@@ -74,5 +77,38 @@ class InventoryTelebot:
             return
 
         update.message.reply_text("Avaliable commands:\n\n"
-                                  "/start -> Welcome message\n"
-                                  "/help  -> Help message\n")
+                                  "/start     -> Welcome message\n"
+                                  "/help      -> Help message\n"
+                                  "/inventory -> Returns all products\n"
+                                  "/list      -> Makes a shopping list\n")
+
+    def _inventory(self, update: Update, _: CallbackContext) -> None:
+        # Ignore incoming messages from other chats.
+        if update.effective_chat.id != self._chat_id:
+            return
+
+        #
+        l = [str(prodtype) for prodtype in self._manager.inventory().values()]
+        update.message.reply_text("\n\n".join(l))
+
+    def _list(self, update: Update, _: CallbackContext) -> None:
+        # Ignore incoming messages from other chats.
+        if update.effective_chat.id != self._chat_id:
+            return
+
+        prodtypes: List[ProductType] = list(self._manager.inventory().values())
+        shopping_list: List[str] = ["\t*Shopping list\n"]
+        list_cost: float = 0.0
+        
+        # Format product data to make a MarkdownV2 list.
+        for prodtype in prodtypes:
+            units: int = prodtype.demand
+            if units > 0:
+                shopping_list.append(f"- _{prodtype.name} x {units}")
+                list_cost += prodtype.total_cost
+
+        currency: str = prodtypes[0].currency if prodtypes else ""
+        shopping_list.append(f"\nCost: {list_cost}{currency}\n")
+        
+        update.message.reply_text("\n".join(shopping_list),
+                                  parse_mode=ParseMode.MARKDOWN_V2)
