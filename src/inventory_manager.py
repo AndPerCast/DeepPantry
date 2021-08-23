@@ -9,7 +9,7 @@ Author:
 
 from jetson.inference import detectNet
 from jetson.utils import videoSource
-from os.path import join, dirname, isfile
+from os.path import join, dirname, isfile, exists
 import csv
 from price_scraper import scrape_price
 from dataclasses import dataclass
@@ -82,6 +82,9 @@ class InventoryManager:
         input_uri: Resource id for an image/camera input.
         sensitivity: Minimum confidence for an object to be detected.
 
+    Raises:
+        FileNotFoundError: If any of the given paths does not exist.
+
     Attributes:
         classes: Names of each kind of product that might be detected.
 
@@ -104,6 +107,15 @@ class InventoryManager:
                  path2labels: str,
                  input_uri: str,
                  sensitivity: float = 0.5) -> None:
+        if not isfile(path2model):
+            raise FileNotFoundError("Cannot find model file " + path2model)
+
+        if not isfile(path2labels):
+            raise FileNotFoundError("Cannot find labels file " + path2labels)
+
+        if not exists(input_uri):
+            raise FileNotFoundError("Cannot find resource file " + input_uri)
+
         self._network = detectNet(threshold=sensitivity, argv=[
             "--model=" + path2model,
             "--labels=" + path2labels,
@@ -139,37 +151,47 @@ class InventoryManager:
             Information about products which can be accessed by their name.
 
         Raises:
-            KeyError: If internal constraints loading fails.
+            InvalidConstraintError: If internal constraints loading fails.
         """
         result: Dict[str, ProductType] = {class_name:ProductType(class_name)
                                           for class_name in self.classes}
         try:
             self._load_constraints(result)
         except KeyError:
-            raise InvalidConstraintError("Invalid constraint on file.")
+            raise InvalidConstraintError("Invalid class name on file.")
+        
         self._update_prices(result)
+
         # Count occurrences of each type within list of detected objects.
         for obj in self._network.Detect(self._camera.Capture()):
             result[self._network.GetClassDesc(obj.ClassID)].amount += 1
         return result
 
-    def update_constraint(self, product_name: str, constraint: int = 0) -> None:
-        """
-        """
+    def update_constraint(self, class_name: str, constraint: int = 0) -> None:
+        """Sets a new number of units that should be available constantly.
 
-        if product_name not in self.classes:
-            raise UnkownClassNameError("")
+        Args:
+            product_name: Name of a product class.
+            constraint: New unit constraint value.
+
+        Raises:
+            UnkownClassNameError: If `product_name` is not from `self.classes`.
+            InvalidConstraintError: If `constraint` value is negative.
+        """
+        if class_name not in self.classes:
+            raise UnkownClassNameError("Unexpected type of object " + class_name)
 
         if constraint < 0:
             raise InvalidConstraintError(f"Negative constraint: {constraint}")
 
+        # Read content from connstraints file, but replace new value.
         with open(self._PATH2CONSTRAINTS, "r", newline="") as csv_file:
             csv_reader = csv.reader(csv_file)
-            target: List[str] = [product_name, str(constraint)]
+            target: List[str] = [class_name, str(constraint)]
             new_data: List[List[str]] = []
             for row in csv_reader:
                 new_data.append(target if target[0] == row[0] else row)
-        #
+        # Overwrite constraints file.
         with open(self._PATH2CONSTRAINTS, "w", newline="") as csv_file:
             csv.writer(csv_file).writerows(new_data)
 

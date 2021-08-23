@@ -17,7 +17,10 @@ from os import remove
 # Add tested modules to Python path.
 sys.path.insert(0, join(dirname(dirname(__file__)), "src"))
 
-from inventory_manager import ProductType, InventoryManager
+from inventory_manager import (ProductType,
+                               InventoryManager,
+                               UnkownClassNameError,
+                               InvalidConstraintError)
 
 
 class TestInventoryManager(unittest.TestCase):
@@ -36,6 +39,11 @@ class TestInventoryManager(unittest.TestCase):
             labels_file.writelines("\n".join(cls.classes))
         InventoryManager._PATH2CONSTRAINTS = join(dirname(__file__),
                                                   ".constraints.csv")
+        cls.path2model: str = join(dirname(__file__), "sample.onnx")
+        with open(cls.path2model, "w", newline=""):
+            pass
+        # Make sure that sample resource file exists.
+        cls.input_uri: str = "/dev/video0"
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -43,6 +51,8 @@ class TestInventoryManager(unittest.TestCase):
             remove(cls.path2labels)
         if isfile(InventoryManager._PATH2CONSTRAINTS):
             remove(InventoryManager._PATH2CONSTRAINTS)
+        if isfile(cls.path2model):
+            remove(cls.path2model)
 
     def setUp(self) -> None:
         self.mocket_detectnet = patch("inventory_manager.detectNet")
@@ -53,11 +63,19 @@ class TestInventoryManager(unittest.TestCase):
         self.addCleanup(self.mocket_video.stop)
         self.mocket_video = self.mocket_video.start()
 
-        self.manager = InventoryManager("", self.path2labels, "")
+        self.manager = InventoryManager(self.path2model,
+                                        self.path2labels,
+                                        self.input_uri)
 
     def test_inventory(self) -> None:
-        with patch("inventory_manager.InventoryManager._load_constraints"), \
-             patch("inventory_manager.InventoryManager._update_prices"):
+        with patch("inventory_manager.InventoryManager._update_prices"), \
+             patch("inventory_manager.InventoryManager._load_constraints") as mocked_load:
+            # Exception must raise when constraints file format is wrong.
+            mocked_load.side_effect = KeyError
+            with self.assertRaises(InvalidConstraintError):
+                self.manager.inventory()
+            mocked_load.reset_mock(side_effect=True)
+
             # Generate an inventory with random number of product units.
             sample_data = self.inventory_data.copy()
             for product in sample_data.values():
@@ -75,6 +93,25 @@ class TestInventoryManager(unittest.TestCase):
             self.mocket_detectnet().Detect.return_value = detections
             self.mocket_detectnet().GetClassDesc.side_effect = lambda id: self.classes[id]
             self.assertDictEqual(sample_data, self.manager.inventory())
+
+    def test_update_constraint(self) -> None:
+        # Check unexpected product class name.
+        with self.assertRaises(UnkownClassNameError):
+            self.manager.update_constraint(self.classes[0][1:])
+        # Check negative constraints.
+        with self.assertRaises(InvalidConstraintError):
+            self.manager.update_constraint(self.classes[0], -1)
+
+        # Create a new sample inventory result.
+        sample_data1 = self.inventory_data.copy()
+        sample_data1[self.classes[-1]].constraint = 3
+
+        # Update constraints and compare loaded results. 
+        self.manager.update_constraint(self.classes[-1], 3)
+        sample_data2 = self.inventory_data.copy()
+        self.manager._load_constraints(sample_data2)
+        
+        self.assertDictEqual(sample_data1, sample_data2)
 
     def test_load_constraints(self) -> None:
         # Check if a default constraints file was created.

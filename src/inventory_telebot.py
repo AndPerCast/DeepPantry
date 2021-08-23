@@ -13,7 +13,10 @@ from telegram.ext import (Updater,
                           Dispatcher,
                           CallbackContext)
 from telegram import Update, ParseMode
-from inventory_manager import InventoryManager, ProductType
+from inventory_manager import (InventoryManager,
+                               ProductType,
+                               UnkownClassNameError,
+                               InvalidConstraintError)
 from typing import List
 
 
@@ -123,18 +126,19 @@ class InventoryTelebot:
         if not context.args:
             update.message.reply_text("Invalid command syntax.")
             return
+        
         product, units, *_ = context.args
-
         product = product.strip("\"").lower()
-        if product not in self._manager.classes:
+        units = int(units)
+
+        try:
+            # Update minimum units for product.
+            self._manager.update_constraint(product, units)
+        except UnkownClassNameError:
             update.message.reply_text("Invalid value for PRODUCT.")
             return
-
-        units = int(units)
-        if units < 0:
+        except InvalidConstraintError:
             update.message.reply_text("Invalid value for UNITS.")
             return
 
-        # Update minimum units for product.
-        self._manager.update_constraint(product.strip("\"").lower(), int(units))
         update.message.reply_text(f"Ok, you need at least {units} {product}.")
