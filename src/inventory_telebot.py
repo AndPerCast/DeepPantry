@@ -7,13 +7,16 @@ Author:
     Andrés Pérez
 """
 
-from telegram.ext import Updater, CommandHandler, MessageHandler
-from telegram.ext import Dispatcher, CallbackContext
+from telegram.ext import (Updater,
+                          CommandHandler,
+                          MessageHandler,
+                          Dispatcher,
+                          CallbackContext)
 from telegram import Update
 from inventory_manager import InventoryManager
 
 
-class TelegramBot:
+class InventoryTelebot:
     """Telegram chatbot which can be used to interact with `InventoryManager`.
 
     Note:
@@ -28,7 +31,7 @@ class TelegramBot:
     Example::
 
         >>> man = InventoryManager("../models/model.onnx", "../models/labels.txt", "/dev/video0")
-        >>> bot = TelegramBot("MY_TOKEN", 12345, man)
+        >>> bot = InventoryTelebot("MY_TOKEN", 123456789, man)
         >>> bot.run()
 
     See Also:
