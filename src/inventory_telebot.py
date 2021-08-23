@@ -11,7 +11,8 @@ from telegram.ext import (Updater,
                           CommandHandler,
                           MessageHandler,
                           Dispatcher,
-                          CallbackContext)
+                          CallbackContext,
+                          Filters)
 from telegram import Update, ParseMode
 from inventory_manager import (InventoryManager,
                                ProductType,
@@ -42,6 +43,24 @@ class InventoryTelebot:
         https://core.telegram.org/bots#creating-a-new-bot
     """
 
+    _INVENTORY_KEYWORDS = {
+        "pantry",
+        "inventory",
+        "all product",
+        "every product",
+        "how many",
+        "food storage",
+    }
+
+    _LIST_KEYWORDS = {
+        "shopping",
+        "list",
+        "supermarket",
+        "shop",
+        "store",
+        "buy",
+    }
+
     def __init__(self,
                  token: str,
                  chat_id: int,
@@ -64,6 +83,7 @@ class InventoryTelebot:
         disp.add_handler(CommandHandler("inventory", self._inventory))
         disp.add_handler(CommandHandler("list", self._list))
         disp.add_handler(CommandHandler("setmin", self._setmin))
+        disp.add_handler(MessageHandler(Filters.text, self._find_keywords))
         self._updater.start_polling()
         self._updater.idle()
 
@@ -87,7 +107,9 @@ class InventoryTelebot:
                                   "/list -> Makes a shopping list\n"
                                   "/setmin \"PRODUCT\" UNITS -> UNITS\n"
                                   "units of PRODUCT should be available\n"
-                                  "constantly. Do include \" characters\n")
+                                  "constantly. Do include \" characters\n"
+                                  "\nCertain keywords such as shopping list\n"
+                                  "may trigger some of the above commands.\n")
 
     def _inventory(self, update: Update, _: CallbackContext) -> None:
         # Ignore incoming messages from other chats.
@@ -142,3 +164,14 @@ class InventoryTelebot:
             return
 
         update.message.reply_text(f"Ok, you need at least {units} {product}.")
+
+    def _find_keywords(self, update: Update, _: CallbackContext) -> None:
+        # Let other methods check chat id. 
+        
+        input_text = str(update.message.text).lower()
+
+        if any(keyword in input_text for keyword in self._INVENTORY_KEYWORDS):
+            self._inventory(update, _)
+
+        if any(keyword in input_text for keyword in self._LIST_KEYWORDS):
+            self._list(update, _)
