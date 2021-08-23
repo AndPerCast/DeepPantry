@@ -57,6 +57,14 @@ class ProductType:
                 f"Purchase link: {self.link}\n")
 
 
+class UnkownClassNameError(Exception):
+    """Product class with such name is not supported."""
+
+
+class InvalidConstraintError(Exception):
+    """Product unit constraint value is wrong."""
+
+
 class InventoryManager:
     """Analyzes a food inventory with the help of object recognition.
     
@@ -112,7 +120,7 @@ class InventoryManager:
             for line in labels_file:
                 label: str = line.rstrip("\n")
                 if label != "BACKGROUND":
-                    classes.append(label)
+                    classes.append(label.lower())
 
         self.classes: Tuple[str, ...] = tuple(classes)
 
@@ -129,18 +137,43 @@ class InventoryManager:
 
         Returns:
             Information about products which can be accessed by their name.
+
+        Raises:
+            KeyError: If internal constraints loading fails.
         """
         result: Dict[str, ProductType] = {class_name:ProductType(class_name)
                                           for class_name in self.classes}
-        self._update_constraints(result)
+        try:
+            self._load_constraints(result)
+        except KeyError:
+            raise InvalidConstraintError("Invalid constraint on file.")
         self._update_prices(result)
         # Count occurrences of each type within list of detected objects.
         for obj in self._network.Detect(self._camera.Capture()):
             result[self._network.GetClassDesc(obj.ClassID)].amount += 1
         return result
 
-    def _update_constraints(self,
-                            inventory_data: Dict[str, ProductType]) -> None:
+    def update_constraint(self, product_name: str, constraint: int = 0) -> None:
+        """
+        """
+
+        if product_name not in self.classes:
+            raise UnkownClassNameError("")
+
+        if constraint < 0:
+            raise InvalidConstraintError(f"Negative constraint: {constraint}")
+
+        with open(self._PATH2CONSTRAINTS, "r", newline="") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            target: List[str] = [product_name, str(constraint)]
+            new_data: List[List[str]] = []
+            for row in csv_reader:
+                new_data.append(target if target[0] == row[0] else row)
+        #
+        with open(self._PATH2CONSTRAINTS, "w", newline="") as csv_file:
+            csv.writer(csv_file).writerows(new_data)
+
+    def _load_constraints(self, inventory_data: Dict[str, ProductType]) -> None:
         with open(self._PATH2CONSTRAINTS, "r", newline="") as csv_file:
             csv_reader = csv.DictReader(csv_file)
             # Get column headers and update constraint field for each product.

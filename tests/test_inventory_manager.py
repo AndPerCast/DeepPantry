@@ -56,7 +56,7 @@ class TestInventoryManager(unittest.TestCase):
         self.manager = InventoryManager("", self.path2labels, "")
 
     def test_inventory(self) -> None:
-        with patch("inventory_manager.InventoryManager._update_constraints"), \
+        with patch("inventory_manager.InventoryManager._load_constraints"), \
              patch("inventory_manager.InventoryManager._update_prices"):
             # Generate an inventory with random number of product units.
             sample_data = self.inventory_data.copy()
@@ -76,12 +76,12 @@ class TestInventoryManager(unittest.TestCase):
             self.mocket_detectnet().GetClassDesc.side_effect = lambda id: self.classes[id]
             self.assertDictEqual(sample_data, self.manager.inventory())
 
-    def test_update_constraints(self) -> None:
+    def test_load_constraints(self) -> None:
         # Check if a default constraints file was created.
         self.assertTrue(isfile(InventoryManager._PATH2CONSTRAINTS))
         # Check if default constraint are loaded correctly.
         sample_data1 = self.inventory_data.copy()
-        self.manager._update_constraints(sample_data1)
+        self.manager._load_constraints(sample_data1)
         self.assertDictEqual(self.inventory_data, sample_data1)
 
         # Generate a file with random constraints per product.
@@ -96,7 +96,7 @@ class TestInventoryManager(unittest.TestCase):
 
         # Check if non-default constraints are loaded correctly.
         sample_data3 = self.inventory_data.copy()
-        self.manager._update_constraints(sample_data3)
+        self.manager._load_constraints(sample_data3)
         self.assertDictEqual(sample_data2, sample_data3)
 
         # Reset constraints file.
