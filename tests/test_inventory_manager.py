@@ -43,7 +43,7 @@ class TestInventoryManager(unittest.TestCase):
         with open(cls.path2model, "w", newline=""):
             pass
         # Make sure that sample resource file exists.
-        cls.input_uri: str = "/dev/video0"
+        cls.input_uri: str = join(dirname(__file__), "pantry.jpg")
 
     @classmethod
     def tearDownClass(cls) -> None:
