@@ -20,3 +20,6 @@ venv.bak/
 
 # Auxiliary file for inventory manager.
 .constraints.csv
+
+# Application logging,
+log/*.log

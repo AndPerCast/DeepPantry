@@ -136,3 +136,6 @@ dmypy.json
 
 # Auxiliary file for inventory manager.
 .constraints.csv
+
+# Application logging,
+log/*.log
