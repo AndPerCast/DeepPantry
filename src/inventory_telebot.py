@@ -105,9 +105,9 @@ class InventoryTelebot:
                                   "/help -> Help message\n"
                                   "/inventory -> Returns all products\n"
                                   "/list -> Makes a shopping list\n"
-                                  "/setmin \"PRODUCT\" UNITS -> UNITS\n"
+                                  "/setmin PRODUCT UNITS -> UNITS\n"
                                   "units of PRODUCT should be available\n"
-                                  "constantly. Do include \" characters\n"
+                                  "constantly. Use \"-\" as spacers\n"
                                   "\nCertain keywords such as shopping list\n"
                                   "may trigger some of the above commands.\n")
 
@@ -125,17 +125,19 @@ class InventoryTelebot:
             return
 
         products: List[ProductType] = list(self._manager.inventory().values())
-        shopping_list: List[str] = ["\t*Shopping list\n"]
+        shopping_list: List[str] = ["*Shopping list*\n"]
         list_cost: float = 0.0
 
         # Format product data to make a MarkdownV2 list.
         for product in products:
             if product.demand > 0:
-                shopping_list.append(f"- _{product.name} x {product.demand}")
+                shopping_list.append("\\* _{}_ x {}".format(product.name.title(),
+                                                            product.demand))
                 list_cost += product.total_cost
 
         if products:
-            shopping_list.append(f"\nCost: {list_cost}{products[0].currency}\n")
+            str_cost = str(round(list_cost, 2)).replace(".", "\\.")
+            shopping_list.append(f"\nCost: {str_cost}{products[0].currency}\n")
 
         update.message.reply_text("\n".join(shopping_list),
                                   parse_mode=ParseMode.MARKDOWN_V2)
@@ -150,7 +152,7 @@ class InventoryTelebot:
             return
         
         product, units, *_ = context.args
-        product = product.strip("\"").lower()
+        product = product.replace("-", " ").lower()
         units = int(units)
 
         try:

@@ -48,7 +48,7 @@ class ProductType:
         return round(self.demand * self.price, 2)
 
     def __str__(self) -> str:
-        return (f"\t{self.name.title()}\n"
+        return (f"{self.name.title()}\n"
                 f"Stored: {self.amount}\n"
                 f"Minimum units: {self.constraint}\n"
                 f"Needed: {self.demand}\n"
@@ -164,7 +164,7 @@ class InventoryManager:
 
         # Count occurrences of each type within list of detected objects.
         for obj in self._network.Detect(self._camera.Capture()):
-            result[self._network.GetClassDesc(obj.ClassID)].amount += 1
+            result[self._network.GetClassDesc(obj.ClassID).lower()].amount += 1
         return result
 
     def update_constraint(self, class_name: str, constraint: int = 0) -> None:
@@ -199,7 +199,7 @@ class InventoryManager:
         with open(self._PATH2CONSTRAINTS, "r", newline="") as csv_file:
             csv_reader = csv.DictReader(csv_file)
             # Get column headers and update constraint field for each product.
-            class_h, constraint_h = next(csv_reader)
+            class_h, constraint_h = csv_reader.fieldnames
             for row in csv_reader:
                 inventory_data[row[class_h]].constraint = int(row[constraint_h])
 
