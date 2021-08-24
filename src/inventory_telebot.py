@@ -18,6 +18,8 @@ from inventory_manager import (InventoryManager,
                                ProductType,
                                UnkownClassNameError,
                                InvalidConstraintError)
+from os import kill, getpid
+from signal import SIGABRT
 from typing import List
 
 
@@ -84,6 +86,7 @@ class InventoryTelebot:
         disp.add_handler(CommandHandler("list", self._list))
         disp.add_handler(CommandHandler("setmin", self._setmin))
         disp.add_handler(MessageHandler(Filters.text, self._find_keywords))
+        disp.add_error_handler(self._error_handler)
         self._updater.start_polling()
         self._updater.idle()
 
@@ -177,3 +180,8 @@ class InventoryTelebot:
 
         if any(keyword in input_text for keyword in self._LIST_KEYWORDS):
             self._list(update, _)
+
+    def _error_handler(self, update: object, context: CallbackContext) -> None:
+        # Stop bot's process and log exception message.
+        kill(getpid(), SIGABRT)
+        raise context.error if context.error else Exception("Generic Error")
