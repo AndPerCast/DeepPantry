@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 """Performs main program functionality.
 
 After loading settings from config/.env file, starts a

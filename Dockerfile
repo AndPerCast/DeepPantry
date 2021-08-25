@@ -8,5 +8,5 @@ WORKDIR /DeepPantry/
 COPY requirements.txt ./
 RUN pip3 install -r requirements.txt --no-cache-dir
 
-COPY ./src/ ./
-CMD [ "/usr/bin/python3", "./src/main.py" ]
+COPY ./src/ ./src/
+ENTRYPOINT [ "/DeepPantry/src/main.py" ]
