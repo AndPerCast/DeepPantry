@@ -32,7 +32,7 @@ class InventoryTelebot:
 
     Args:
         token: Bot token obtained by Telegram's BotFather.
-        chat_id: Numeric if for a chat the bot will participate in.
+        chat_id: Numeric id for a chat the bot will participate in.
         manager: `InventoryManager` instance to handle inventory in real-time.
 
     Example::
