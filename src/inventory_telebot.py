@@ -85,6 +85,7 @@ class InventoryTelebot:
         disp.add_handler(CommandHandler("inventory", self._inventory))
         disp.add_handler(CommandHandler("list", self._list))
         disp.add_handler(CommandHandler("setmin", self._setmin))
+        disp.add_handler(CommandHandler("picture", self._picture))
         disp.add_handler(MessageHandler(Filters.text, self._find_keywords))
         disp.add_error_handler(self._error_handler)
         self._updater.start_polling()
@@ -111,16 +112,19 @@ class InventoryTelebot:
                                   "/setmin PRODUCT UNITS -> UNITS\n"
                                   "units of PRODUCT should be available\n"
                                   "constantly. Use \"-\" as spacers\n"
+                                  "/picture -> Take a picture of the pantry\n"
                                   "\nCertain keywords such as shopping list\n"
                                   "may trigger some of the above commands.\n")
 
-    def _inventory(self, update: Update, _: CallbackContext) -> None:
+    def _inventory(self, update: Update, context: CallbackContext) -> None:
         # Ignore incoming messages from other chats.
         if update.effective_chat.id != self._chat_id:
             return
 
         l = [str(product) for product in self._manager.inventory().values()]
-        update.message.reply_text("\n\n".join(l))
+        context.bot.send_photo(chat_id=self._chat_id,
+                               photo=self._manager.picture(previous=True))
+        update.message.reply_text("\n\n".join(l), disable_web_page_preview=True)
 
     def _list(self, update: Update, _: CallbackContext) -> None:
         # Ignore incoming messages from other chats.
@@ -169,6 +173,14 @@ class InventoryTelebot:
             return
 
         update.message.reply_text(f"Ok, you need at least {units} {product}.")
+
+    def _picture(self, update: Update, context: CallbackContext) -> None:
+        # Ignore incoming messages from other chats.
+        if update.effective_chat.id != self._chat_id:
+            return
+
+        context.bot.send_photo(chat_id=self._chat_id,
+                               photo=self._manager.picture())
 
     def _find_keywords(self, update: Update, _: CallbackContext) -> None:
         # Let other methods check chat id. 

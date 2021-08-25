@@ -8,12 +8,13 @@ Author:
 """
 
 from jetson.inference import detectNet
-from jetson.utils import videoSource
+from jetson.utils import videoSource, cudaImage, saveImage
 from os.path import join, dirname, isfile, exists
+from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
 import csv
 from price_scraper import scrape_price
 from dataclasses import dataclass
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, Optional
 
 
 @dataclass
@@ -125,6 +126,7 @@ class InventoryManager:
         ])
 
         self._camera = videoSource(input_uri)
+        self._current_frame: Optional[cudaImage] = None
 
         # Get available objects from labels file, skip BACKGROUND class.
         with open(path2labels, "r") as labels_file:
@@ -161,9 +163,10 @@ class InventoryManager:
             raise InvalidConstraintError("Invalid class name on file.")
         
         self._update_prices(result)
+        self._current_frame = self._camera.Capture()
 
         # Count occurrences of each type within list of detected objects.
-        for obj in self._network.Detect(self._camera.Capture()):
+        for obj in self._network.Detect(self._current_frame, overlay="none"):
             result[self._network.GetClassDesc(obj.ClassID).lower()].amount += 1
         return result
 
@@ -194,6 +197,24 @@ class InventoryManager:
         # Overwrite constraints file.
         with open(self._PATH2CONSTRAINTS, "w", newline="") as csv_file:
             csv.writer(csv_file).writerows(new_data)
+
+    def picture(self, previous: bool = False) -> _TemporaryFileWrapper:
+        """Picture of current inventory state.
+
+        Args:
+            previous: If `True` and `self.inventory` has been called at least
+                once, get picture from last inventory update.
+
+        Returns:
+            Opened temporary jpg image file that will get deleted if closed.
+        """
+        if not previous or self._current_frame is None:
+            self._current_frame = self._camera.Capture()
+        
+        temp = NamedTemporaryFile(prefix="inventory_picture_", suffix=".jpg")
+        saveImage(temp.name, self._current_frame)
+        temp.seek(0)
+        return temp
 
     def _load_constraints(self, inventory_data: Dict[str, ProductType]) -> None:
         with open(self._PATH2CONSTRAINTS, "r", newline="") as csv_file:
