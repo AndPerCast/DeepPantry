@@ -18,25 +18,25 @@ SOURCE_URL: str = "https://www.trolley.co.uk"
 
 def scrape_prices(product_names: List[str],
                   parser: str = "lxml") -> List[Tuple[str, str, float, str]]:
-    """Retrieves price information for given product.
+    """Retrieves price information for given products.
 
     Args:
-        product_name: Common name for a product.
+        product_names: Common names for products.
         parser: HTML parser used by the scraper.
 
     Returns:
-        Purchase link, price and currency.
+        Product name, purchase link, price and currency.
 
         Default values will be returned if such gathering
         process fails, as shown in the example.
 
     Example::
 
-        >>> scrape_price("soda")
-        ('https://www.trolley.co.uk/product/vive-soda-water/FTB465', 0.25, '£')
+        >>> scrape_prices(["soda"])
+        ('soda', 'https://www.trolley.co.uk/product/vive-soda-water/FTB465', 0.25, '£')
         
-        >>> scrape_price("?")
-        ("", 0.0, "")
+        >>> scrape_prices(["?"])
+        ('?', '', 0.0, '')
     """
     result: List[Tuple[str, str, float, str]] = []
     with requests.Session() as s:

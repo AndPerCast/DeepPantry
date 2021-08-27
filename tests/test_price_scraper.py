@@ -26,14 +26,14 @@ class TestPriceScraper(unittest.TestCase):
     def setUpClass(cls) -> None:
         with open(HTML_TEST_FILE, "r", newline="", encoding="utf-8") as f:
             cls.html_text = f.read()
-        cls.product_name: str = basename(HTML_TEST_FILE).split("-")[0]
+        cls.product_names = [basename(HTML_TEST_FILE).split("-")[0]]
         cls.price_info = [(
-            cls.product_name,
+            cls.product_names[0],
             'https://www.trolley.co.uk/product/morrisons-savers-honey/IBN007',
             0.69,
             '£',
         )]
-        cls.default_price_info = [(cls.product_name, "", 0.0, "")]
+        cls.default_price_info = [(cls.product_names[0], "", 0.0, "")]
 
     def setUp(self) -> None:
         if not self.html_text:
@@ -46,22 +46,23 @@ class TestPriceScraper(unittest.TestCase):
             r = requests.Response()
             r.status_code = 200
             mocked_get.return_value = r
-            self.assertListEqual(self.price_info, scrape_prices([self.product_name]))
+            self.assertListEqual(self.price_info,
+                                 scrape_prices(self.product_names))
             
             # Check if connection related errors induce default values.
             r = requests.Response()
             r.status_code = 500
             mocked_get.return_value = r
             self.assertListEqual(self.default_price_info,
-                                  scrape_prices([self.product_name]))
+                                 scrape_prices(self.product_names))
 
             mocked_get.side_effect = requests.ConnectionError
             self.assertListEqual(self.default_price_info,
-                                  scrape_prices([self.product_name]))
+                                 scrape_prices(self.product_names))
 
             mocked_get.side_effect = requests.Timeout
             self.assertListEqual(self.default_price_info,
-                                  scrape_prices([self.product_name]))
+                                 scrape_prices(self.product_names))
             
             # Check if a lack of products induces default values.
             mocked_get.reset_mock(side_effect=True)
@@ -70,7 +71,7 @@ class TestPriceScraper(unittest.TestCase):
             r.status_code = 200
             mocked_get.return_value = r
             self.assertListEqual(self.default_price_info,
-                                  scrape_prices([self.product_name]))
+                                 scrape_prices(self.product_names))
             
 
 if __name__ == "__main__":
