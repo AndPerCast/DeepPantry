@@ -11,6 +11,16 @@ Let AI keep track of your food inventory and handle the shopping list for you
 
 <br>
 
+## Overview
+
+
+<br>
+
+## Requirements
+
+
+<br>
+
 ## Installation guide
 
 First of all, you have to complete the [initial set up](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) of your Jetson Nano, which<br>
@@ -31,7 +41,7 @@ It's time to configure the project:
 - [Application settings](#settings)
 - [AI models](#ai-models)
 
-The best way to run the project is via a Docker container. There is a simple<br>
+The best way to run the project is via a **Docker container**. There is a simple<br>
 *Dockerfile* located on **project's root directory**, which you can further<br>
 customize if you plan to enhance this application.
 
@@ -39,7 +49,7 @@ You can either build a local image or pull it from [Docker Hub](https://hub.dock
 There is a script called [run_app.sh](config/CONFIG.md#run-docker-container) to execute main application inside a<br>
 container. For example:
 
-> You need to exert sudo priviledges if your are not a member of [docker group](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
+> You need to exert sudo priviledges if you are not a member of [docker group](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
 
 ```bash
   pwd
