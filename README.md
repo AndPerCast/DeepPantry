@@ -2,27 +2,47 @@
 Let AI keep track of your food inventory and handle the shopping list for you
 
 ## Author
-
 - [@AndPerCast](https://github.com/AndPerCast)
 
 ## License
-
 [MIT](https://choosealicense.com/licenses/mit/)
 
 <br>
 
 ## Overview
+This project allows you to create an smart home device, which can manage your<br>
+food inventory and
+
+<br>
+
+## Motivation
 
 
 <br>
 
 ## Requirements
+- Nvidia Jetson Nano
+- Micro SD card (64 GB recommended)
+- Power supply (according to your device)
+- CSI/USB camera
 
+> Jetson Nano 4GB was used to build this project, however, 2GB version<br>
+> should work as well. If you experiment issues, follow [these](https://github.com/dusty-nv/jetson-inference/blob/master/docs/pytorch-transfer-learning.md#disabling-the-desktop-gui) or [these](https://github.com/dusty-nv/jetson-inference/blob/master/docs/pytorch-transfer-learning.md#mounting-swap) steps.
+
+> If you opt for 4GB version, you definitely need to consider barrel jack.
+
+### Optional
+- USB keyboard and mouse
+- HMDI monitor
+- Camera tripod
+- USB wifi adapter
+
+> This project requires a permanent Internet connection, in order to present<br>
+> results to the user.
 
 <br>
 
 ## Installation guide
-
 First of all, you have to complete the [initial set up](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) of your Jetson Nano, which<br>
 includes flashing the OS image on your SD card.
 
@@ -66,23 +86,19 @@ container. For example:
 <br>
 
 ## API documentation
-
 You can find more information about API documentation [here](docs/DOCS.md).
 
 <br>
 
 ## Settings
-
 You can find more information about project settings [here](config/CONFIG.md).
 
 <br>
 
 ## AI models
-
 You can find more information about supported AI models [here](models/MODELS.md).
 
 <br>
 
 ## Testing
-
 You can find more information about project testing [here](tests/TESTS.md).
