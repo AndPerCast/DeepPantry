@@ -12,7 +12,7 @@ from jetson.utils import videoSource, cudaImage, saveImage
 from os.path import join, dirname, isfile, exists
 from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
 import csv
-from price_scraper import scrape_price
+from price_scraper import scrape_prices
 from dataclasses import dataclass
 from typing import Tuple, Dict, List, Optional
 
@@ -227,5 +227,6 @@ class InventoryManager:
     @staticmethod
     def _update_prices(inventory_data: Dict[str, ProductType]) -> None:
         # Get real-time prices and purchase links for each product.
-        for name, product in inventory_data.items():
-            product.link, product.price, product.currency = scrape_price(name)
+        for name, *data in scrape_prices(list(inventory_data.keys())):
+            product: ProductType = inventory_data[name]
+            product.link, product.price, product.currency = data
