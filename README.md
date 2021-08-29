@@ -11,12 +11,33 @@ Let AI keep track of your food inventory and handle the shopping list for you
 
 ## Overview
 This project allows you to create an smart home device, which can manage your<br>
-food inventory and
+food inventory and make a shopping list at your convenience.
+
+**DeepPantry** uses [machine learning](#ai-models) to identify several types of objects, from<br>
+an image of your pantry. With the help of a Telegram chat interface, you can<br>
+specify the required stock for each product and ask for a list with real-time prices.
 
 <br>
 
 ## Motivation
+Nowadays, efficient food resources management has become even more important<br>
+for our society. I realized that some household appliance manufacturers have<br>
+tried to tackle this problem from AI's perpective, by using image recognition.<br>
+Therefore, I thought I was a good idea to create a similar project.
 
+I chose [Nvidia Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) as hardware support. Although there might be better<br>
+alternatives to solve this task, such as an IOT schema with a microcontroller and<br>
+a centralized computing server, *edge computing* offers a crucial upside.
+
+Such advantage is personal privacy, as anyone who has access to the data could<br>
+extract information about our eating habits and purchasing power, which could<br>
+be very profitable for advertising companies.
+
+In my case, security concerns are covered. Both data gathering and processing<br>
+are done locally on Jetson Nano. Internet connection is necessary just to<br>
+present results to user.
+
+If you want to see how I faced AI training, check [this](#ai-models) section.
 
 <br>
 
@@ -82,6 +103,9 @@ container. For example:
   # Else, make sure to specify a proper image tag.
   config/run_app.sh andpercast/deep-pantry:latest
 ```
+
+Finally, head over to Telegram and start interacting with the chatbot.<br>
+The `/help` command will help you to get started.
 
 <br>
 
