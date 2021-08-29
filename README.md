@@ -19,11 +19,12 @@ This project allows you to create an smart home device, which can manage your<br
 food inventory and make a shopping list at your convenience.
 
 **DeepPantry** uses [machine learning](#ai-models) to identify several types of objects, from<br>
-an image of your pantry. With the help of a Telegram chat interface, you can<br>
-specify the required stock for each product and ask for a list with real-time prices.
-Sample output | Sample output
-:-------:|:-------:
-![Telegram & Pantry 1](docs/_static/telegram-pantry1.png) | ![Telegram & Pantry 2](docs/_static/telegram-pantry2.png)
+images of your pantry (live camera feed). With the help of a Telegram chat<br>
+interface, you can specify the required stock for each product and ask for a<br>
+list with real-time prices.
+| Before | After |
+| :-------: | :-------: |
+| ![Telegram & Pantry 1](docs/_static/telegram-pantry1.png) | ![Telegram & Pantry 2](docs/_static/telegram-pantry2.png) |
 
 <br>
 

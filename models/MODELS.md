@@ -19,3 +19,6 @@ epochs. This is the [tutorial](https://github.com/dusty-nv/jetson-inference/blob
 
 Anyways, it is easy for **DeepPantry** to load your own models. Just make sure to<br>
 move both ***ONNX*** and ***labels*** files to this folder and adjust paths on [settings](../config/CONFIG.md).
+
+> The very first time you import a new model can take a while, as ***[TensorRT](https://developer.nvidia.com/tensorrt)***<br>
+> will optimize it to enhance inferencing performance.
