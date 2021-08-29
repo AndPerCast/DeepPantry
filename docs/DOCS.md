@@ -4,7 +4,7 @@ This directory contains documentation about developed source code modules.<br>
 In order to build an *html* version of it, use available makefile.<br>
 Then, you can open *_build/html/index.html* with the browser of your choice.
 
-> [run_dev.sh](config/CONFIG.md#run-docker-container) conveniently maps the entire repository as a volume.
+> [run_dev.sh](../config/CONFIG.md#run-docker-container) conveniently maps the entire repository as a volume.
 
 ```bash
   pwd
