@@ -6,6 +6,10 @@
 Welcome to DeepPantry's documentation!
 ======================================
 
+.. image:: _static/boxes-pantry.png
+  :width: 600
+  :alt: Pantry cover
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
