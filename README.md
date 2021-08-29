@@ -1,6 +1,9 @@
 # DeepPantry
 Let AI keep track of your food inventory and handle the shopping list for you
 
+![Pantry cover](docs/_static/boxes-pantry.png)
+
+
 ## Author
 - [@AndPerCast](https://github.com/AndPerCast)
 
@@ -10,12 +13,17 @@ Let AI keep track of your food inventory and handle the shopping list for you
 <br>
 
 ## Overview
+[Video Introduction](https://drive.google.com/file/d/1efLKcKvvl4lJusevOCURmUpihAO0zjJ6/view?usp=sharing)
+
 This project allows you to create an smart home device, which can manage your<br>
 food inventory and make a shopping list at your convenience.
 
 **DeepPantry** uses [machine learning](#ai-models) to identify several types of objects, from<br>
 an image of your pantry. With the help of a Telegram chat interface, you can<br>
 specify the required stock for each product and ask for a list with real-time prices.
+Sample output | Sample output
+:-------:|:-------:
+![Telegram & Pantry 1](docs/_static/telegram-pantry1.png) | ![Telegram & Pantry 2](docs/_static/telegram-pantry2.png)
 
 <br>
 
@@ -91,6 +99,9 @@ There is a script called [run_app.sh](config/CONFIG.md#run-docker-container) to 
 container. For example:
 
 > You need to exert sudo priviledges if you are not a member of [docker group](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
+
+> Make sure that you have plugged your camera to the Jetson and it points to<br>
+> the right place.
 
 ```bash
   pwd
