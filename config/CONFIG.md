@@ -57,7 +57,7 @@ At this point there are two main alternatives to get the chat id:
 > Replace *\<YourToken\>* with the one you got from previous step.
 
 - Install ***python-telegram-bot*** library and execute this code,<br>
-  you can do that inside the [development container](#run-docker-container):
+  you can do that inside the [development container](#developer-container):
 ```python
   >>> import telegram
   >>> bot = telegram.Bot(token='<YourToken>')
@@ -79,18 +79,21 @@ At this point there are two main alternatives to get the chat id:
 
 There are two utility scripts in this directory.
 
-On the hand, ***run_app.sh*** is mainly designed to execute main<br>
+### Production container
+On the one hand, ***run_app.sh*** is designed to execute main<br>
 application inside a Docker container, you can pass both local<br>
-or [Docker Hub](https://hub.docker.com/r/andpercast/deep-pantry) image tag to run it from, though latest one will be<br>
-pulled by default.
+or [Docker Hub](https://hub.docker.com/r/andpercast/deep-pantry) image tag to run it from, though latest one will<br>
+be pulled by default.
 
 Several volumes will be mapped inside the new container:
 - *DeepPantry/config*
 - *DeepPantry/log*
 - *DeepPantry/models*
-- Video device files (*video0* and *argus_socket*)
+- Video device files (*/dev/video0* and */tmp/argus_socket*)
 
 > Make sure that you have set up a proper *[.env](#main-program-configuration)* file.
+
+> You need to exert sudo priviledges if you are not a member of [docker group](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
 
 ```bash
   pwd
@@ -105,4 +108,26 @@ Several volumes will be mapped inside the new container:
 
   # Get more information.
   config/run_app.sh --help
+```
+
+### Developer container
+
+On the other hand, ***run_dev.sh*** may be used to launch a<br>
+developer environment you can attach to and experiment<br>
+with project code and external libraries.
+
+```bash
+  pwd
+  # <...>/DeepPantry
+
+  # Launch a development container and attach to it.
+  config/run_dev.sh
+  sudo docker exec -it deep-pantry-dev /bin/bash
+  cd /DeepPantry/
+  pip3 install -r requirements.txt
+
+  # Work in the project.
+
+  exit
+  sudo docker stop deep-pantry-dev
 ```
