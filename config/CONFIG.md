@@ -54,22 +54,55 @@ search bar and send any message to it.
 
 At this point there are two main alternatives to get the chat id:
 
-- Install ***python-telegram-bot*** library and execute this code:
+> Replace *\<YourToken\>* with the one you got from previous step.
+
+- Install ***python-telegram-bot*** library and execute this code,<br>
+  you can do that inside the [development container](#run-docker-container):
 ```python
   >>> import telegram
-  >>> bot = telegram.Bot(token='YourToken')
+  >>> bot = telegram.Bot(token='<YourToken>')
   >>> print(bot.get_me())
   >>> updates = bot.get_updates()
-  >>> print(updates[0]['chat']['id'])
+  >>> print(updates[0]['message']['chat']['id'])
   123456789
 ```
 
-- Make this HTTP request on your browser:
+- Make this *HTTP* request on your browser and look for ***"id"***<br>
+  field on *json* response:
 ```http
   https://api.telegram.org/bot<YourToken>/getUpdates
 ```
 
 <br>
 
-## Run docker container
+## Run Docker container
 
+There are two utility scripts in this directory.
+
+On the hand, ***run_app.sh*** is mainly designed to execute main<br>
+application inside a Docker container, you can pass both local<br>
+or [Docker Hub](https://hub.docker.com/r/andpercast/deep-pantry) image tag to run it from, though latest one will be<br>
+pulled by default.
+
+Several volumes will be mapped inside the new container:
+- *DeepPantry/config*
+- *DeepPantry/log*
+- *DeepPantry/models*
+- Video device files (*video0* and *argus_socket*)
+
+> Make sure that you have set up a proper *[.env](#main-program-configuration)* file.
+
+```bash
+  pwd
+  # <...>/DeepPantry
+
+  # If you choose to build a local image.
+  docker build . -t deep-pantry
+  config/run_app.sh deep-pantry
+
+  # Else, make sure to specify a proper image tag.
+  config/run_app.sh andpercast/deep-pantry:latest
+
+  # Get more information.
+  config/run_app.sh --help
+```
