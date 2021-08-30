@@ -104,6 +104,8 @@ container. For example:
 > Make sure that you have plugged your camera to the Jetson and it points to<br>
 > the right place.
 
+> Make sure that you have set up a proper *[.env](#settings)* file.
+
 ```bash
   pwd
   # <...>/DeepPantry
@@ -117,7 +119,8 @@ container. For example:
 ```
 
 Finally, head over to Telegram and start interacting with the chatbot.<br>
-The `/help` command will help you to get started.
+The `/help` command will help you to get started.<br>
+Application log messages reside on *log* folder.
 
 <br>
 

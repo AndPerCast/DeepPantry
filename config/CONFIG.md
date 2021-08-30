@@ -50,13 +50,14 @@ Follow *[Creating a new bot](https://core.telegram.org/bots#creating-a-new-bot)*
 > anyone to control your bot.
 
 Start a chat session with your new bot, by typing its name in the<br>
-search bar and send any message to it.
+search bar and **send any message to it**.
 
-At this point there are two main alternatives to get the chat id:
+At this point there are two main alternatives to get the chat id,<br>
+choose one of them:
 
 > Replace *\<YourToken\>* with the one you got from previous step.
 
-- Install ***python-telegram-bot*** library and execute this code,<br>
+1. Install ***python-telegram-bot*** library and execute this code,<br>
   you can do that inside the [development container](#developer-container):
 ```python
   >>> import telegram
@@ -67,7 +68,7 @@ At this point there are two main alternatives to get the chat id:
   123456789
 ```
 
-- Make this *HTTP* request on your browser and look for ***"id"***<br>
+2. Make this *HTTP* request on your browser and look for ***"id"***<br>
   field on *json* response:
 ```http
   https://api.telegram.org/bot<YourToken>/getUpdates
@@ -115,6 +116,11 @@ Several volumes will be mapped inside the new container:
 On the other hand, ***run_dev.sh*** may be used to launch a<br>
 developer environment you can attach to and experiment<br>
 with project code and external libraries.
+
+Several volumes will be mapped inside the new container,<br>
+including the entire repository so as to keep changes:
+- *~/DeepPantry*
+- Video device files (*/dev/video0* and */tmp/argus_socket*)
 
 ```bash
   pwd
