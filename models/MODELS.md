@@ -4,7 +4,7 @@ In order to perform real-time inventory management, **DeepPantry** uses deep<br>
 learning models that are specialized in **object detection** tasks. This repository<br>
 already comes with ***ssd-mobilenet.onnx*** out of the box.<br>
 
-For this project, I collected my own dataset in *Pascal VOC* format with images<br>
+For this project, I collected my own [dataset](https://drive.google.com/drive/folders/1nAAdmjYm_6k_V1LJ90OaN4FSZnznbGuJ?usp=sharing) in *Pascal VOC* format with images<br>
 of my pantry and some food items I had around. Classification involves 5<br>
 different types of objects, which I included in my *labels.txt* file:
 - Cookies
