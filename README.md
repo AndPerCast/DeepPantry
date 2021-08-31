@@ -70,6 +70,8 @@ If you want to see how I faced AI training, check [this](#ai-models) section.
 > This project requires a permanent Internet connection, in order to present<br>
 > results to the user.
 
+![Jetson 4GB setup](docs/_static/setup.jpg)
+
 <br>
 
 ## Installation guide
